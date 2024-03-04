@@ -1,0 +1,12 @@
+{
+    "name": "miet/better_orioks_user_service",
+    "type": "project",
+    "authors": [
+        {
+            "name": "luntikius",
+            "email": "luntikius@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
