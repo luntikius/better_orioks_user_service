@@ -15,8 +15,8 @@ return new class extends Migration
             $table->integer('id') -> primary();
             $table->string('auth_string');
             $table->integer('last_news_id');
-            $table->boolean('isReceivingPerformanceNotifications');
-            $table->boolean('isReceivingNewsNotifications');
+            $table->boolean('is_receiving_performance_notifications');
+            $table->boolean('is_receiving_news_notifications');
             $table->timestamps();
         });
     }
