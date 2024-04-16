@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('subject_name');
             $table->integer('control_event_id');
             $table->string('control_event_name');
-            $table->float('user_score');
+            $table->string('user_score');
             $table->primary(['user_id','subject_id','control_event_id']);
             $table->timestamps();
         });
