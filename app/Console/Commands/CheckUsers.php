@@ -31,7 +31,8 @@ class CheckUsers
 
     private function checkUserPerformance(OrioksUser $user): void
     {
-        $currentUserScore = OrioksScore::select('subject_id','subject_name','control_event_id','control_event_name','user_score')
+        $currentUserScore =
+            OrioksScore::select('subject_id','subject_name','control_event_id','control_event_name','user_score')
             -> where('user_id',$user -> user_id)
             -> get();
 
@@ -48,9 +49,9 @@ class CheckUsers
                         'current_score' => $currentUserScore[$i] -> user_score,
                         'new_score' => $newUserScore[$i] -> user_score,
                     ];
+                    $this->notifyPerformanceChanges($changes);
                 }
             }
-            $this->notifyPerformanceChanges($changes);
         }
 
         if($newUserScore != null) $this->updateUsersPerformance($user, $newUserScore);
@@ -62,8 +63,14 @@ class CheckUsers
         OrioksScore::where('user_id',$user -> id) -> delete();
 
         foreach ($newUserScore as $score){
-            $score['user_id'] = $user -> id;
-            OrioksScore::create($score);
+            $os = new OrioksScore();
+            $os -> user_id = $user -> id;
+            $os -> subject_id = $score['subject_id'];
+            $os -> subject_name = $score['subject_name'];
+            $os -> control_event_id = $score['control_event_id'];
+            $os -> control_event_name = $score['control_event_name'];
+            $os -> user_score = $score['user_score'];
+            $os -> save();
         }
     }
 
