@@ -70,9 +70,8 @@ class CheckUsers
 
     private function notifyPerformanceChanges (array $changes): void
     {
-        $encoded = json_encode($changes);
-        echo ("BOBS");
-        //$ch = curl_init(notificationLink."/performances");
+        $data = json_encode($changes);
+        Http::withBody($data) -> post(notificationLink."/notifications");
     }
 
     private function sendPerformanceGetRequest(OrioksUser $user): ?array
@@ -118,7 +117,8 @@ class CheckUsers
 
     private function notifyNews(OrioksUser $user, string $name, string $url)
     {
-
+        $data = json_encode(['user_id' => $user -> id,'NewsName' => $name,'link' => $url]);
+        Http::withBody($data) -> post(notificationLink."/news");
     }
 
     private function getOrioksScore(OrioksUser $user, mixed $dec): OrioksScore
