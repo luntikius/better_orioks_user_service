@@ -63,13 +63,7 @@ class CheckUsers
         OrioksScore::where('user_id',$user -> id) -> delete();
 
         foreach ($newUserScore as $score){
-            $os = new OrioksScore();
-            $os -> user_id = $user -> id;
-            $os -> subject_id = $score['subject_id'];
-            $os -> subject_name = $score['subject_name'];
-            $os -> control_event_id = $score['control_event_id'];
-            $os -> control_event_name = $score['control_event_name'];
-            $os -> user_score = $score['user_score'];
+            $os = $this->getOrioksScore($user, $score);
             $os -> save();
         }
     }
@@ -83,12 +77,11 @@ class CheckUsers
 
     private function sendPerformanceGetRequest(OrioksUser $user): ?array
     {
-        $auth = ['auth_string',$user -> auth_string];
-        $request = Http::get(parserLink,$auth);
+        $request = Http::withHeader('Auth-String',$user->auth_string)->get(parserLink);
 
         if($request -> successful()){
             $identity = $request -> getHeader('identity');
-            $user -> auth_string = "orioks_identity = ".$identity."; ".($user -> auth_string -> str_split(", ")[1]);
+            $user -> auth_string = "orioks_identity = ".$identity."; ".(explode(", ",$user->auth_string)[1]);
             $user -> save();
             $json = $request -> json();
             $decoded = json_decode($json);
@@ -96,13 +89,7 @@ class CheckUsers
             $scoreArray = [];
 
             foreach ($decoded as $dec){
-                $orioksScore = new OrioksScore();
-                $orioksScore -> user_id = $user -> id;
-                $orioksScore -> subject_id = $dec['subject_id'];
-                $orioksScore -> subject_name = $dec['subject_name'];
-                $orioksScore -> control_event_id = $dec['control_event_id'];
-                $orioksScore -> control_event_name = $dec['control_event_name'];
-                $orioksScore -> user_score = $dec['user_score'];
+                $orioksScore = $this->getOrioksScore($user, $dec);
                 $scoreArray[] = $orioksScore;
             }
             return $scoreArray;
@@ -117,5 +104,18 @@ class CheckUsers
     private function checkUserNews(OrioksUser $user): void
     {
 
+    }
+
+    private function getOrioksScore(OrioksUser $user, mixed $dec): OrioksScore
+    {
+        $orioksScore = new OrioksScore();
+        $orioksScore->user_id = $user->id;
+        $orioksScore->subject_id = $dec['subject_id'];
+        $orioksScore->subject_name = $dec['subject_name'];
+        $orioksScore->control_event_id = $dec['control_event_id'];
+        $orioksScore->control_event_name = $dec['control_event_name'];
+        $orioksScore->user_score = $dec['user_score'];
+
+        return $orioksScore;
     }
 }
