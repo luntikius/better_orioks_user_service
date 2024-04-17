@@ -77,7 +77,7 @@ class CheckUsers
 
     private function sendPerformanceGetRequest(OrioksUser $user): ?array
     {
-        $request = Http::withHeader('Auth-String',$user->auth_string)->get(parserLink);
+        $request = Http::withHeader('Auth-String',$user->auth_string)->get(parserLink."/marks");
 
         if($request -> successful()){
             $identity = $request -> getHeader('identity');
@@ -94,14 +94,29 @@ class CheckUsers
             }
             return $scoreArray;
         }else{
-            echo("USER CHECK FOR ".$user->id." FAILED");
             $errorCode = $request -> status();
+            echo("\nUSER CHECK FOR ".$user->id." FAILED ON PERFORMANCE WITH ERROR ".$errorCode);
             return null;
         }
     }
 
 
     private function checkUserNews(OrioksUser $user): void
+    {
+        $request = Http::withHeader('Auth-String',$user->auth_string)->get(parserLink."/news");
+        if($request -> successful()){
+            $parsed = json_decode($request -> body(), true);
+            $newId = $parsed['id'];
+            if($newId != $user -> last_news_id){
+                $this->notifyNews($user,$parsed['name'],$parsed['url']);
+            }
+        }else{
+            $errorCode = $request -> status();
+            echo("\nUSER CHECK FOR ".$user->id." FAILED ON NEWS WITH ERROR ".$errorCode);
+        }
+    }
+
+    private function notifyNews(OrioksUser $user, string $name, string $url)
     {
 
     }
