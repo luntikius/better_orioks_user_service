@@ -17,7 +17,7 @@ class UserController extends Controller
             ]);
         $userData['last_news_id'] = -1;
         
-        $user = OrioksUser::create($userData);
+        OrioksUser::create($userData);
         return view("welcome");
     }
 
