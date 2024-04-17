@@ -6,8 +6,8 @@ use App\Models\OrioksScore;
 use App\Models\OrioksUser;
 use Illuminate\Support\Facades\Http;
 
-const parserLink = "";
-const notificationLink = "";
+const parserLink = "http://  /api/v1";
+const notificationLink = "http://  /api/v1";
 class CheckUsers
 {
     public function invoke(): void
@@ -22,10 +22,14 @@ class CheckUsers
     private function checkUser (OrioksUser $user): void
     {
         if($user -> is_receiving_performance_notifications){
+            echo "\nSTARTED PERFORMANCE CHECK FOR USER ".$user->id." ...";
             $this->checkUserPerformance($user);
+            echo "\n FINISHED PERFORMANCE CHECK";
         }
         if($user -> is_reveiving_news_notifications){
+            echo "\nSTARTED NEWS CHECK FOR USER ".$user->id." ...";
             $this->checkUserNews($user);
+            echo "\n FINISHED NEWS CHECK";
         }
     }
 
@@ -71,7 +75,10 @@ class CheckUsers
     private function notifyPerformanceChanges (array $changes): void
     {
         $data = json_encode($changes);
-        Http::withBody($data) -> post(notificationLink."/notifications");
+        $request = Http::withBody($data) -> post(notificationLink."/notifications");
+        if($request -> successful()){
+            echo ("Performance notification sent: ".$request -> json());
+        }
     }
 
     private function sendPerformanceGetRequest(OrioksUser $user): ?array
@@ -115,10 +122,13 @@ class CheckUsers
         }
     }
 
-    private function notifyNews(OrioksUser $user, string $name, string $url)
+    private function notifyNews(OrioksUser $user, string $name, string $url): void
     {
         $data = json_encode(['user_id' => $user -> id,'NewsName' => $name,'link' => $url]);
-        Http::withBody($data) -> post(notificationLink."/news");
+        $request = Http::withBody($data) -> post(notificationLink."/news");
+        if($request -> successful()){
+            echo ("News notification sent: ".$request -> json());
+        }
     }
 
     private function getOrioksScore(OrioksUser $user, mixed $dec): OrioksScore
