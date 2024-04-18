@@ -7,8 +7,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('v1/users', [UserController::class, 'registerAUser']);
-
 Route::get('v1/users', function (){
     return view('register');
 });
