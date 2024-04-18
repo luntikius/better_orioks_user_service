@@ -1,0 +1,111 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Better Orioks User Service API",
+        "contact": {
+            "name": "Ivan",
+            "email": "luntikius@gmail.com"
+        },
+        "version": "1"
+    },
+    "paths": {
+        "/api/v1/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "users",
+                "operationId": "ab30e59707c791a97bac3c6133400b45",
+                "responses": {
+                    "200": {
+                        "description": "List Of Users"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Add a user",
+                "operationId": "cace648ecdcc8acd22ef320f55e35f70",
+                "requestBody": {
+                    "description": "User data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "example": "123"
+                                    },
+                                    "auth_string": {
+                                        "type": "string",
+                                        "example": "abcd1234"
+                                    },
+                                    "is_receiving_news_notifications": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "is_receiving_performance_notifications": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirection to main page"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "users",
+                "operationId": "6e6e2e44c6376f9ea50cb04775d3944d",
+                "requestBody": {
+                    "description": "User data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "example": "123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Delete A User By ID"
+                    }
+                }
+            }
+        },
+        "/api/v1/performances": {
+            "get": {
+                "tags": [
+                    "performances"
+                ],
+                "summary": "performances",
+                "operationId": "ceca117c18574ee1295708b66d5f53f5",
+                "responses": {
+                    "200": {
+                        "description": "List Of Performances"
+                    }
+                }
+            }
+        }
+    }
+}
