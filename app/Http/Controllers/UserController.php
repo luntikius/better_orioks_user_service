@@ -6,7 +6,7 @@ use App\Models\OrioksScore;
 use App\Models\OrioksUser;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OpenApi\Annotations as OA;
+
 /**
  * @OA\Info(
  *     title="Better Orioks User Service API",
@@ -34,7 +34,7 @@ class UserController extends Controller
      *              @OA\Property(property="is_receiving_performance_notifications", type="boolean", example=true)
      *          )
      *      ),
-     *     @OA\Response(response="302", description="Redirection to main page")
+     *     @OA\Response(response="200", description="registers a user in database")
      * )
      */
     public function registerAUser (Request $request): View
@@ -62,6 +62,27 @@ class UserController extends Controller
     public function getUsers(): false|string
     {
         return json_encode(OrioksUser::all());
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/users",
+     *     tags={"Users"},
+     *     summary="users",
+     *     @OA\RequestBody(
+     *           required=true,
+     *           description="User data",
+     *           @OA\JsonContent(
+     *               @OA\Property(property="id", type="string", example="123"),
+     *           )
+     *       ),
+     *     @OA\Response(response="200", description="Delete A User By ID")
+     * )
+     */
+    public function deleteUser(Request $request):void
+    {
+        $id = $request -> validate(['id' => 'required']);
+        OrioksUser::where('id', $id) -> delete();
     }
 
     /**
