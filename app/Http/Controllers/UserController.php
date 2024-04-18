@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\OrioksScore;
 use App\Models\OrioksUser;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use OpenApi\Annotations as OA;
 /**
  * @OA\Info(
@@ -36,7 +37,7 @@ class UserController extends Controller
      *     @OA\Response(response="302", description="Redirection to main page")
      * )
      */
-    public function registerAUser (Request $request)
+    public function registerAUser (Request $request): View
     {
         $userData = $request -> validate([
             'id' => 'required',
