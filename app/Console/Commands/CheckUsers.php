@@ -7,8 +7,8 @@ use App\Models\OrioksUser;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 
-const parserLink = "http://  /api/v1";
-const notificationLink = "http://  /api/v1";
+const parserLink = "http://25.47.206.7/api/v1";
+const notificationLink = "http://25.46.243.50/api/v1";
 class CheckUsers
 {
     public function invoke(): void
@@ -25,12 +25,12 @@ class CheckUsers
         if($user -> is_receiving_performance_notifications){
             echo "\nSTARTED PERFORMANCE CHECK FOR USER ".$user->id." ...";
             $this->checkUserPerformance($user);
-            echo "\n FINISHED PERFORMANCE CHECK";
+            echo "\nFINISHED PERFORMANCE CHECK";
         }
-        if($user -> is_reveiving_news_notifications){
+        if($user -> is_receiving_news_notifications){
             echo "\nSTARTED NEWS CHECK FOR USER ".$user->id." ...";
             $this->checkUserNews($user);
-            echo "\n FINISHED NEWS CHECK";
+            echo "\nFINISHED NEWS CHECK";
         }
     }
 
@@ -68,7 +68,7 @@ class CheckUsers
         OrioksScore::where('user_id',$user -> id) -> delete();
 
         foreach ($newUserScore as $score){
-            $os = $this->getOrioksScore($user, $score);
+            $os = $this->getOrioksScore($user->id, $score);
             $os -> save();
         }
     }
@@ -78,7 +78,7 @@ class CheckUsers
         $data = json_encode($changes);
         $request = Http::withBody($data) -> post(notificationLink."/notifications");
         if($request -> successful()){
-            echo ("Performance notification sent: ".$request -> json());
+            echo ("\nPerformance notification sent: ".$request -> json());
         }
     }
 
@@ -89,16 +89,17 @@ class CheckUsers
         $request = Http::withBody($json)->get(parserLink."/marks");
 
         if($request -> successful()){
-            $identity = $request -> getHeader('identity');
-            $user -> auth_string = "orioks_identity = ".$identity."; ".(explode(", ",$user->auth_string)[1]);
+            $identity = $request -> header('identity');
+            $newAuthString = $identity."; ".(explode("; ",$user -> auth_string)[1]);
+            $user -> auth_string = $newAuthString;
             $user -> save();
             $json = $request -> json();
-            $decoded = json_decode($json);
+            $decoded = json_decode($json,true);
 
             $scoreArray = [];
 
             foreach ($decoded as $dec){
-                $orioksScore = $this->getOrioksScore($user, $dec);
+                $orioksScore = $this->getOrioksScore($user -> id, $dec);
                 $scoreArray[] = $orioksScore;
             }
             return $scoreArray;
@@ -116,10 +117,12 @@ class CheckUsers
         $json = json_encode(['Auth-String' => $encrypted]);
         $request = Http::withBody($json)->get(parserLink."/news");
         if($request -> successful()){
-            $parsed = json_decode($request -> body(), true);
+            $parsed = json_decode($request -> json(), true);
             $newId = $parsed['id'];
             if($newId != $user -> last_news_id){
                 $this->notifyNews($user,$parsed['name'],$parsed['url']);
+                $user->last_news_id = $newId;
+                $user->save();
             }
         }else{
             $errorCode = $request -> status();
@@ -132,14 +135,14 @@ class CheckUsers
         $data = json_encode(['user_id' => $user -> id,'NewsName' => $name,'link' => $url]);
         $request = Http::withBody($data) -> post(notificationLink."/news");
         if($request -> successful()){
-            echo ("News notification sent: ".$request -> json());
+            echo ("\nNews notification sent: ".$request -> json());
         }
     }
 
-    private function getOrioksScore(OrioksUser $user, mixed $dec): OrioksScore
+    private function getOrioksScore(int $userId, Mixed $dec): OrioksScore
     {
         $orioksScore = new OrioksScore();
-        $orioksScore->user_id = $user->id;
+        $orioksScore->user_id = $userId;
         $orioksScore->subject_id = $dec['subject_id'];
         $orioksScore->subject_name = $dec['subject_name'];
         $orioksScore->control_event_id = $dec['control_event_id'];
