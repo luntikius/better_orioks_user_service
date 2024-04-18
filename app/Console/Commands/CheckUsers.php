@@ -85,8 +85,8 @@ class CheckUsers
     private function sendPerformanceGetRequest(OrioksUser $user): ?array
     {
         $encrypted = Crypt::encrypt($user -> auth_string);
-        $json = json_encode(['Auth-String' => $encrypted]);
-        $request = Http::withBody($json)->get(parserLink."/marks");
+        $parameters = ['Auth-String' => $encrypted];
+        $request = Http::withQueryParameters($parameters)->get(parserLink."/marks");
 
         if($request -> successful()){
             $identity = $request -> header('identity');
@@ -114,8 +114,8 @@ class CheckUsers
     private function checkUserNews(OrioksUser $user): void
     {
         $encrypted = Crypt::encrypt($user -> auth_string);
-        $json = json_encode(['Auth-String' => $encrypted]);
-        $request = Http::withBody($json)->get(parserLink."/news");
+        $parameters = ['Auth-String' => $encrypted];
+        $request = Http::withQueryParameters($parameters)->get(parserLink."/news");
         if($request -> successful()){
             $parsed = json_decode($request -> json(), true);
             $newId = $parsed['id'];
